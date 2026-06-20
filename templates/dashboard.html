@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | TaskFlow{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Enterprise workspace</p>
+    <h1>Project command center</h1>
+  </div>
+  <a class="btn btn-primary" href="{% url 'project_list' %}">View Projects</a>
+</div>
+
+<section class="metric-grid">
+  <div class="metric"><span>Total Projects</span><strong>{{ total_projects }}</strong></div>
+  <div class="metric"><span>Total Tasks</span><strong>{{ total_tasks }}</strong></div>
+  <div class="metric"><span>Completed</span><strong>{{ completed_tasks }}</strong></div>
+  <div class="metric danger"><span>Overdue</span><strong>{{ overdue_tasks }}</strong></div>
+</section>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-8">
+    <section class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Portfolio Health</h2>
+        <span class="badge text-bg-light">{{ pending_tasks }} pending</span>
+      </div>
+      <canvas id="taskChart" height="120" data-completed="{{ completed_tasks }}" data-pending="{{ pending_tasks }}" data-overdue="{{ overdue_tasks }}"></canvas>
+    </section>
+  </div>
+  <div class="col-lg-4">
+    <section class="panel">
+      <h2>Team Productivity</h2>
+      {% for row in team_metrics %}
+        <div class="productivity-row">
+          <span>{{ row.assignee__username|default:"Unassigned" }}</span>
+          <strong>{{ row.completed }}/{{ row.total }}</strong>
+        </div>
+      {% empty %}
+        <p class="text-muted mb-0">No tasks yet.</p>
+      {% endfor %}
+    </section>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-7">
+    <section class="panel">
+      <h2>Recent Projects</h2>
+      <div class="list-group list-group-flush">
+        {% for project in projects %}
+          <a class="list-group-item list-group-item-action" href="{% url 'kanban' project.id %}">
+            <div class="d-flex justify-content-between"><strong>{{ project.name }}</strong><span>{{ project.progress }}%</span></div>
+            <div class="progress mt-2"><div class="progress-bar" style="width: {{ project.progress }}%"></div></div>
+          </a>
+        {% empty %}
+          <p class="text-muted mb-0">Create a project through the admin or API to begin.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+  <div class="col-lg-5">
+    <section class="panel">
+      <h2>Activity Feed</h2>
+      {% for item in recent_activity %}
+        <div class="activity-item">
+          <strong>{{ item.actor|default:"System" }}</strong> {{ item.verb }}
+          <small>{{ item.created_at|timesince }} ago</small>
+        </div>
+      {% empty %}
+        <p class="text-muted mb-0">No activity recorded.</p>
+      {% endfor %}
+    </section>
+  </div>
+</div>
+{% endblock %}

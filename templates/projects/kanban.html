@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load project_extras %}
+{% block title %}Kanban | TaskFlow{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ project.key }}</p><h1>{{ project.name }}</h1></div>
+  <span class="badge text-bg-light">{{ project.progress }}% complete</span>
+</div>
+<div class="kanban-board">
+  {% for status, label in statuses %}
+    <section class="kanban-column" data-status="{{ status }}">
+      <h2>{{ label }}</h2>
+      {% for task in columns|get_item:status %}
+        <article class="task-card" draggable="true" data-task="{{ task.id }}">
+          <div class="d-flex justify-content-between gap-2">
+            <strong>{{ task.title }}</strong>
+            <span class="priority {{ task.priority }}">{{ task.get_priority_display }}</span>
+          </div>
+          <p>{{ task.description|truncatechars:90 }}</p>
+          <small>{{ task.assignee|default:"Unassigned" }}{% if task.due_date %} · {{ task.due_date }}{% endif %}</small>
+          <form method="post" action="{% url 'move_task_web' task.id %}" class="move-form">{% csrf_token %}<input type="hidden" name="status" value="{{ status }}"></form>
+        </article>
+      {% empty %}
+        <div class="empty-column">No tasks</div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+</div>
+{% endblock %}

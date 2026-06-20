@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Projects | TaskFlow{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">Portfolio</p><h1>Projects</h1></div>
+  <form class="searchbar"><input class="form-control" name="q" placeholder="Search projects" value="{{ request.GET.q }}"></form>
+</div>
+<div class="project-grid">
+  {% for project in projects %}
+    <a class="project-card" href="{% url 'kanban' project.id %}">
+      <span class="badge text-bg-primary">{{ project.key }}</span>
+      <h2>{{ project.name }}</h2>
+      <p>{{ project.description|truncatechars:120 }}</p>
+      <div class="progress"><div class="progress-bar" style="width: {{ project.progress }}%"></div></div>
+      <small>{{ project.get_status_display }} · {{ project.end_date }}</small>
+    </a>
+  {% empty %}
+    <section class="panel"><p class="mb-0 text-muted">No projects found.</p></section>
+  {% endfor %}
+</div>
+{% endblock %}
